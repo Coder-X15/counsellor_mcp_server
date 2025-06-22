@@ -7,15 +7,18 @@ def build_app(mcp: FastMCP) -> Flask:
     app = Flask(f"{mcp.name()}-api")
 
     @app.route("/tools", methods=["POST", "GET"])
-    def get_tools():
-        return mcp.get_tools()
+    async def get_tools():
+        async with Client(mcp) as client:
+            tools = await client.list_tools()
+            return tools
     
     @app.route("/tools/<tool_name>", methods=["POST"])
-    def run_tool(tool_name: str):
-        tool = mcp.get_tool(tool_name)
-        if tool:
-            return mcp.run_tool(tool_name, request.get_data())
-        
-        return "Tool not found", 404
+    async def run_tool(tool_name: str):
+        async with Client(mcp) as client:
+            tool = await client.get_tool(tool_name)
+            if tool:
+                return await client.call_tool(tool_name, arguments = request.get_json())
+            
+            return "Tool not found", 404
     
     return app
