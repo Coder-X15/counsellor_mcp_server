@@ -6,7 +6,7 @@ from flask import Flask, request
 def build_app(mcp: FastMCP) -> Flask:
     app = Flask(f"{mcp.name()}-api")
 
-    @app.route("/tools", methods=["GET"])
+    @app.route("/tools", methods=["POST", "GET"])
     def get_tools():
         return mcp.get_tools()
     
