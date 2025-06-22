@@ -22,16 +22,20 @@ def build_app(mcp: FastMCP) -> Flask:
         async def run_tool_async(tool_name: str):
             async with Client(mcp) as client:
                 result = await client.call_tool(tool_name, arguments=request.json.get("arguments", {}))
-                # If result is a Tool or other non-serializable, convert to dict
+                # Convert result to dict if possible
                 if hasattr(result, "dict"):
                     return result.dict()
                 elif hasattr(result, "__dict__"):
                     return result.__dict__
-                return jsonify(result)
-            return None
+                elif isinstance(result, (list, tuple)):
+                    # Convert list/tuple of custom objects
+                    return [
+                        item.dict() if hasattr(item, "dict") else
+                        item.__dict__ if hasattr(item, "__dict__") else item
+                        for item in result
+                    ]
+                return result
         result = asyncio.run(run_tool_async(tool_name))
-        if result is not None:
-            return jsonify(result)
-        return "Tool not found", 404
+        return jsonify(result) if result is not None else ("Tool not found", 404)
 
     return app
