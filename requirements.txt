@@ -1,0 +1,6 @@
+fastmcp
+pandas
+fsspec
+huggingface_hub
+flask
+uvicorn
