@@ -11,7 +11,9 @@ def build_app(mcp: FastMCP) -> Flask:
     def get_tools():
         async def list_tools_async():
             async with Client(mcp) as client:
-                return await client.list_tools()
+                tools = await client.list_tools()
+                # Convert each Tool object to dict
+                return [tool.dict() if hasattr(tool, "dict") else tool.__dict__ for tool in tools]
         tools = asyncio.run(list_tools_async())
         return jsonify(tools)
 
@@ -22,6 +24,11 @@ def build_app(mcp: FastMCP) -> Flask:
                 tool = await client.get_tool(tool_name)
                 if tool:
                     result = await client.call_tool(tool_name, arguments=request.get_json())
+                    # If result is a Tool or other non-serializable, convert to dict
+                    if hasattr(result, "dict"):
+                        return result.dict()
+                    elif hasattr(result, "__dict__"):
+                        return result.__dict__
                     return result
                 return None
         result = asyncio.run(run_tool_async())
