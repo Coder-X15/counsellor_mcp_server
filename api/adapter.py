@@ -27,7 +27,7 @@ def build_app(mcp: FastMCP) -> Flask:
                     return result.dict()
                 elif hasattr(result, "__dict__"):
                     return result.__dict__
-                return result
+                return jsonify(result)
             return None
         result = asyncio.run(run_tool_async(tool_name))
         if result is not None:
