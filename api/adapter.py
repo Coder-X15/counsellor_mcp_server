@@ -19,19 +19,17 @@ def build_app(mcp: FastMCP) -> Flask:
 
     @app.route("/tools/<tool_name>", methods=["POST"])
     def run_tool(tool_name: str):
-        async def run_tool_async():
+        async def run_tool_async(tool_name: str):
             async with Client(mcp) as client:
-                tools = await client.list_tools()
-                if tool_name in [tool.name for tool in tools]:
-                    result = await client.call_tool(tool_name, arguments=request.get_json().get("arguments", {}))
-                    # If result is a Tool or other non-serializable, convert to dict
-                    if hasattr(result, "dict"):
-                        return result.dict()
-                    elif hasattr(result, "__dict__"):
-                        return result.__dict__
-                    return result
-                return None
-        result = asyncio.run(run_tool_async())
+                result = await client.call_tool(tool_name, arguments=request.get_json().get("arguments", {}))
+                # If result is a Tool or other non-serializable, convert to dict
+                if hasattr(result, "dict"):
+                    return result.dict()
+                elif hasattr(result, "__dict__"):
+                    return result.__dict__
+                return result
+            return None
+        result = asyncio.run(run_tool_async(tool_name))
         if result is not None:
             return jsonify(result)
         return "Tool not found", 404
