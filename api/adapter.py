@@ -4,7 +4,7 @@ from flask import Flask, request
 # our aim is to provide a Flask-based API that can be used to interact with the FastMCP server
 
 def build_app(mcp: FastMCP) -> Flask:
-    app = Flask(f"{mcp.name()}-api")
+    app = Flask(__name__)
 
     @app.route("/tools", methods=["POST", "GET"])
     def get_tools():
