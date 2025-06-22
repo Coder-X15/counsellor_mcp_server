@@ -9,16 +9,23 @@ def build_app(mcp: FastMCP) -> Flask:
 
     @app.route("/tools", methods=["POST", "GET"])
     def get_tools():
-        client = Client(mcp)
-        tools = asyncio.run(client.list_tools())
+        async def list_tools_async():
+            async with Client(mcp) as client:
+                return await client.list_tools()
+        tools = asyncio.run(list_tools_async())
         return jsonify(tools)
 
     @app.route("/tools/<tool_name>", methods=["POST"])
     def run_tool(tool_name: str):
-        client = Client(mcp)
-        tool = asyncio.run(client.get_tool(tool_name))
-        if tool:
-            result = asyncio.run(client.call_tool(tool_name, arguments=request.get_json()))
+        async def run_tool_async():
+            async with Client(mcp) as client:
+                tool = await client.get_tool(tool_name)
+                if tool:
+                    result = await client.call_tool(tool_name, arguments=request.get_json())
+                    return result
+                return None
+        result = asyncio.run(run_tool_async())
+        if result is not None:
             return jsonify(result)
         return "Tool not found", 404
 
