@@ -21,9 +21,9 @@ def build_app(mcp: FastMCP) -> Flask:
     def run_tool(tool_name: str):
         async def run_tool_async():
             async with Client(mcp) as client:
-                tool = await client.get_tool(tool_name)
-                if tool:
-                    result = await client.call_tool(tool_name, arguments=request.get_json())
+                tools = await client.list_tools()
+                if tool_name in [tool.name for tool in tools]:
+                    result = await client.call_tool(tool_name, arguments=request.get_json().get("arguments", {}))
                     # If result is a Tool or other non-serializable, convert to dict
                     if hasattr(result, "dict"):
                         return result.dict()
