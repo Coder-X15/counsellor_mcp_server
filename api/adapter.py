@@ -17,7 +17,7 @@ def build_app(mcp: FastMCP) -> Flask:
         tools = asyncio.run(list_tools_async())
         return jsonify(tools)
 
-    @app.route("/tools/<tool_name>", methods=["POST"])
+    @app.route("/tools/<str:tool_name>", methods=["POST"])
     def run_tool(tool_name: str):
         async def run_tool_async(tool_name: str):
             async with Client(mcp) as client:
