@@ -26,7 +26,7 @@ def fetchConversationSnippets(kwds: list) -> str:
     filtered_df = mental_health_df[indices]['Response']
 
     # step 3: unite the snippets into a single text message and return
-    return " ".join(filtered_df.values.to_list())
+    return " ".join(filtered_df.values.tolist())
 
 
 
