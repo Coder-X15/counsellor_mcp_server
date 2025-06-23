@@ -29,24 +29,6 @@ def fetchConversationSnippets(kwds: list) -> str:
     return " ".join(filtered_df.values.tolist())
 
 
-
-@mcp.tool()
-def setState(state: bool) -> bool:
-    # sets the state of the music player widget in the Streamlit frontend
-    global music_player_state
-    try:
-        music_player_state = state
-        return True # inidicates successful state setting
-    except:
-        return False # indicates unsuccessful state setting
-
-
-@mcp.tool()
-def getState() -> bool:
-    # returns the state of the music player widget
-     return music_player_state
-
-
 app = build_app(mcp)
 
 if __name__ == "__main__":
